@@ -28,7 +28,7 @@ void print_number(double x) {
     printf("%.*f", c, x);
 }
 
-void run_benchmark(char *name, void (*benchmark)(void*), void (*setup)(void*), void (*teardown)(void*), void* data, int count, int iter) {
+void run_benchmark(char *name, void (*benchmark)(void*, unsigned int), void (*setup)(void*), void (*teardown)(void*), void* data, int count, int iter) {
     int i;
     double min = HUGE_VAL;
     double sum = 0.0;
@@ -37,7 +37,7 @@ void run_benchmark(char *name, void (*benchmark)(void*), void (*setup)(void*), v
         double begin, total;
         if (setup) setup(data);
         begin = gettimedouble();
-        benchmark(data);
+        benchmark(data, iters);
         total = gettimedouble() - begin;
         if (teardown) teardown(data);
         if (total < min) min = total;
@@ -45,11 +45,11 @@ void run_benchmark(char *name, void (*benchmark)(void*), void (*setup)(void*), v
         sum += total;
     }
     printf("%s: min ", name);
-    print_number(min * 1000000.0 / iter);
+    print_number(min * 1000000.0 / iters);
     printf("us / avg ");
-    print_number((sum / count) * 1000000.0 / iter);
+    print_number((sum / count) * 1000000.0 / iters);
     printf("us / max ");
-    print_number(max * 1000000.0 / iter);
+    print_number(max * 1000000.0 / iters);
     printf("us\n");
 }
 
