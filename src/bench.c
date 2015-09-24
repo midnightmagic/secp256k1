@@ -552,20 +552,21 @@ void usage(char *av) {
 
     t=find_bench_member(bench_table, NULL, 0UL);
 
-    printf("%s [[scalar|field|group|ecmult|hash|context|{name}|-c n|-i n|-w n|-h|all|clear|go] ...]\n", av);
-    printf("scalar  - queue all scalar-related benchmarks\n");
-    printf("field   - queue all field-related benchmarks\n");
-    printf("group   - queue all group-related benchmarks\n");
-    printf("ecmult  - queue all ecmult-related benchmarks\n");
-    printf("hash    - queue all hash-related benchmarks\n");
-    printf("context - queue all context-related benchmarks\n");
-    printf("{name}  - queue specific benchmark by name (see list below)\n");
-    printf("-c n    - set the number of times the benchmark member should be run\n");
-    printf("-i n    - set the number of iterations internal to the benchmark member\n");
-    printf("-w n    - configure runtime WINDOW_G table optimization size\n");
-    printf("all     - queue all benchmarks available\n");
-    printf("clear   - clear the benchmark queue\n");
-    printf("go      - perform all runnable benchmarks and print results\n\n");
+    printf("%s [[scalar|field|group|ecmult|hash|context|{name}|defaults|-c n|-i n|-w n|-h|all|clear|go] ...]\n", av);
+    printf("scalar   - queue all scalar-related benchmarks\n");
+    printf("field    - queue all field-related benchmarks\n");
+    printf("group    - queue all group-related benchmarks\n");
+    printf("ecmult   - queue all ecmult-related benchmarks\n");
+    printf("hash     - queue all hash-related benchmarks\n");
+    printf("context  - queue all context-related benchmarks\n");
+    printf("{name}   - queue specific benchmark by name (see list below)\n");
+    printf("defaults - show default count and iters for all benchmarks\n");
+    printf("-c n     - set the number of times the benchmark member should be run\n");
+    printf("-i n     - set the number of iterations internal to the benchmark member\n");
+    printf("-w n     - configure runtime WINDOW_G table optimization size\n");
+    printf("all      - queue all benchmarks available\n");
+    printf("clear    - clear the benchmark queue\n");
+    printf("go       - perform all runnable benchmarks and print results\n\n");
     printf("Benchmarks available:\n");
 
     for (i=0; i<t; i++) {
@@ -573,6 +574,19 @@ void usage(char *av) {
             printf(" ");
         }
         printf("%s", bench_table[i].name);
+    }
+    printf("\n");
+
+}
+
+void usage_defaults(void) {
+    int i, t;
+
+    t=find_bench_member(bench_table, NULL, 0UL);
+
+    printf("Benchmark defaults:\n");
+    for (i=0; i<t; i++) {
+        printf("%-25s % 5d % 8d\n", bench_table[i].name, bench_table[i].default_runs, bench_table[i].default_iters);
     }
     printf("\n");
 }
@@ -625,6 +639,9 @@ int main(int argc, char **argv) {
                     emode=B_WINDOWG;
                 } else if (!strcmp(argv[i], "-h")) {
                     usage(argv[0]);
+                    return 0;
+                } else if (!strcmp(argv[i], "defaults")) {
+                    usage_defaults();
                     return 0;
                 } else if (!strcmp(argv[i], "go")) {
                     total_benchmarks=find_bench_member(bench_table, NULL, 0UL);
