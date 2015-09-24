@@ -134,6 +134,17 @@ typedef int (*secp256k1_nonce_function_t)(
 /** Flags to pass to secp256k1_context_create. */
 # define SECP256K1_CONTEXT_VERIFY (1 << 0)
 # define SECP256K1_CONTEXT_SIGN   (1 << 1)
+/** To unobtrusively support variable-sized WINDOW_G, the next six bits
+ *  are interpreted directly as a WINDOW_G value, if any are set. We can't
+ *  presume to know in advance the size of int, but libsecp256k1
+ *  is probably not running on a machine with an int size smaller than 8 bits.
+ *
+ *  This also keeps the binary interface backwards-compatible and
+ *  still leaves room for lots of future flags.
+ */
+# define SECP256K1_CONTEXT_WINDOWG_MASK (63 << 2)
+# define SECP256K1_CONTEXT_WINDOWG_PACK(_x) (((int)_x << 2) & SECP256K1_CONTEXT_WINDOWG_MASK)
+# define SECP256K1_CONTEXT_WINDOWG_UNPACK(_x) (((int)_x & SECP256K1_CONTEXT_WINDOWG_MASK) >> 2)
 
 /** Create a secp256k1 context object.
  *

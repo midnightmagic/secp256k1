@@ -59,6 +59,7 @@ struct secp256k1_context_struct {
 
 secp256k1_context_t* secp256k1_context_create(int flags) {
     secp256k1_context_t* ret = (secp256k1_context_t*)checked_malloc(&default_error_callback, sizeof(secp256k1_context_t));
+    int windowG_override=SECP256K1_CONTEXT_WINDOWG_UNPACK(flags);
     ret->illegal_callback = default_illegal_callback;
     ret->error_callback = default_error_callback;
 
@@ -69,7 +70,7 @@ secp256k1_context_t* secp256k1_context_create(int flags) {
         secp256k1_ecmult_gen_context_build(&ret->ecmult_gen_ctx, &ret->error_callback);
     }
     if (flags & SECP256K1_CONTEXT_VERIFY) {
-        secp256k1_ecmult_context_build(&ret->ecmult_ctx, &ret->error_callback);
+        secp256k1_ecmult_context_build(&ret->ecmult_ctx, &ret->error_callback, windowG_override);
     }
 
     return ret;

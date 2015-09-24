@@ -16,10 +16,11 @@ typedef struct {
 #ifdef USE_ENDOMORPHISM
     secp256k1_ge_storage_t (*pre_g_128)[]; /* odd multiples of 2^128*generator */
 #endif
+    int tablesize;
 } secp256k1_ecmult_context_t;
 
 static void secp256k1_ecmult_context_init(secp256k1_ecmult_context_t *ctx);
-static void secp256k1_ecmult_context_build(secp256k1_ecmult_context_t *ctx, const callback_t *cb);
+static void secp256k1_ecmult_context_build(secp256k1_ecmult_context_t *ctx, const callback_t *cb, int windowG_override);
 static void secp256k1_ecmult_context_clone(secp256k1_ecmult_context_t *dst,
                                            const secp256k1_ecmult_context_t *src, const callback_t *cb);
 static void secp256k1_ecmult_context_clear(secp256k1_ecmult_context_t *ctx);

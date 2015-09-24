@@ -56,6 +56,8 @@ typedef struct {
     unsigned char ecdsa_sig[72];
     unsigned char pubkey[33];
     int pubkeylen;
+
+    int windowG_override;
 } bench_t;
 
 void bench_setup(void* arg) {
@@ -316,9 +318,9 @@ void bench_rfc6979_hmac_sha256(void* arg, int iters) {
 
 void bench_context_verify(void* arg, int iters) {
     int i;
-    (void)arg;
+    bench_t* data = (bench_t *)arg;
     for (i = 0; i < iters; i++) {
-        secp256k1_context_destroy(secp256k1_context_create(SECP256K1_CONTEXT_VERIFY));
+        secp256k1_context_destroy(secp256k1_context_create(SECP256K1_CONTEXT_VERIFY | SECP256K1_CONTEXT_WINDOWG_PACK(data->windowG_override) ));
     }
 }
 
@@ -382,7 +384,7 @@ void bench_recover_setup(void* arg) {
     int i;
     bench_t *data = (bench_t*)arg;
 
-    data->ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    data->ctx = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY | SECP256K1_CONTEXT_WINDOWG_PACK(data->windowG_override) );
 
     for (i = 0; i < 32; i++) data->msg[i] = 1 + i;
     for (i = 0; i < 64; i++) data->sig[i] = 65 + i;
@@ -399,7 +401,7 @@ static void bench_schnorr_init(void* arg) {
     int i, k;
     bench_t* data = (bench_t*)arg;
 
-    data->ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+    data->ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY | SECP256K1_CONTEXT_WINDOWG_PACK(data->windowG_override) );
 
     data->numsigs = 1; /* XXX: Excisable */
 
@@ -473,7 +475,7 @@ void bench_verify_setup(void *arg) {
     secp256k1_pubkey_t pubkey;
     secp256k1_ecdsa_signature_t sig;
 
-    data->ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+    data->ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY | SECP256K1_CONTEXT_WINDOWG_PACK(data->windowG_override) );
 
     for (i = 0; i < 32; i++) data->msg[i] = 1 + i;
     for (i = 0; i < 32; i++) data->key[i] = 33 + i;
@@ -588,10 +590,12 @@ void bench_set_type_runnable(unsigned int colour) {
 
 int main(int argc, char **argv) {
     bench_t data;
-    int i=0, runs=0, iters=0, windowg=0;
+    int i=0, runs=0, iters=0, windowg=WINDOW_G;
     int whichbench=0, total_benchmarks=0;
     long unsigned int bflags=0;
     int emode=B_SCANNING;
+
+    data.windowG_override=WINDOW_G;
 
     if (argc < 2) {
         printf("No arguments.\n");
@@ -656,6 +660,11 @@ int main(int argc, char **argv) {
                 break;
             case B_WINDOWG:
                 windowg=atoi(argv[i]);
+                if (windowg < 2 || windowg > 19) {
+                    printf("windowg value out of bounds (2-19) resetting to 16\n");
+                    windowg=16;
+                }
+                data.windowG_override=windowg;
                 emode=B_SCANNING;
                 break;
             default:
