@@ -51,17 +51,7 @@ libsecp256k1_la_LIBADD = $(SECP_LIBS)
 
 noinst_PROGRAMS =
 if USE_BENCHMARK
-noinst_PROGRAMS += bench_verify bench_sign bench_internal bench
-bench_verify_SOURCES = src/bench_verify.c
-bench_verify_LDADD = libsecp256k1.la $(SECP_LIBS)
-bench_verify_LDFLAGS = -static
-bench_sign_SOURCES = src/bench_sign.c
-bench_sign_LDADD = libsecp256k1.la $(SECP_LIBS)
-bench_sign_LDFLAGS = -static
-bench_internal_SOURCES = src/bench_internal.c
-bench_internal_LDADD = $(SECP_LIBS)
-bench_internal_LDFLAGS = -static
-bench_internal_CPPFLAGS = $(SECP_INCLUDES)
+noinst_PROGRAMS += bench
 bench_SOURCES = src/bench.c
 bench_CPPFLAGS = $(SECP_INCLUDES)
 bench_LDADD = libsecp256k1.la $(SECP_LIBS)
@@ -91,7 +81,6 @@ $(gen_context_BIN): $(gen_context_OBJECTS)
 
 $(libsecp256k1_la_OBJECTS): src/ecmult_static_context.h
 $(tests_OBJECTS): src/ecmult_static_context.h
-$(bench_internal_OBJECTS): src/ecmult_static_context.h
 $(bench_OBJECTS): src/ecmult_static_context.h
 
 src/ecmult_static_context.h: $(gen_context_BIN)
